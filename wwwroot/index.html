@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Leave Desk – Employee Leave Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef3f4;--surface:#fff;--ink:#12262b;--muted:#5d7278;--line:#d9e3e5;--brand:#0f5c6e;--brand-ink:#fff;--side:#0d3f4c;--side-ink:#d3e8ec;
+--pend-bg:#fff1cc;--pend:#7a5600;--ok-bg:#d8f3e3;--ok:#146136;--no-bg:#fde0e0;--no:#9b1c2c;--focus:#1e90ff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1a1e;--surface:#12262b;--ink:#e6f1f3;--muted:#94adb3;--line:#244047;--brand:#4fb8cc;--brand-ink:#04222a;--side:#081417;--side-ink:#b7d3d9;
+--pend-bg:#3d3000;--pend:#ffd866;--ok-bg:#0f3a24;--ok:#7fe0aa;--no-bg:#4a1a20;--no:#ff9aa6;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0b1a1e;--surface:#12262b;--ink:#e6f1f3;--muted:#94adb3;--line:#244047;--brand:#4fb8cc;--brand-ink:#04222a;--side:#081417;--side-ink:#b7d3d9;--pend-bg:#3d3000;--pend:#ffd866;--ok-bg:#0f3a24;--ok:#7fe0aa;--no-bg:#4a1a20;--no:#ff9aa6;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 "Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}#app.shell{display:grid;grid-template-columns:230px 1fr;min-height:100vh}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+aside{background:var(--side);color:var(--side-ink);padding:28px 18px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:6px}
+.logo{font-weight:800;font-size:22px;color:#fff;letter-spacing:-.02em;margin:0 8px 22px}
+.logo span{display:inline-block;background:var(--brand);color:var(--brand-ink);border-radius:8px;padding:0 8px;margin-right:6px}
+nav button{all:unset;box-sizing:border-box;width:100%;cursor:pointer;padding:11px 14px;border-radius:10px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+nav button:hover{background:rgba(255,255,255,.08)}
+nav button[aria-current="true"]{background:var(--surface);color:var(--ink)}
+nav button:focus-visible{outline:3px solid var(--focus)}
+.count{font-size:12px;background:rgba(255,255,255,.16);border-radius:99px;padding:1px 9px}
+nav button[aria-current="true"] .count{background:var(--bg);color:var(--ink)}
+.note{margin-top:auto;font-size:12px;opacity:.75;padding:0 8px}
+main{padding:36px clamp(16px,4vw,48px);max-width:1100px;width:100%}
+h1{font-size:30px;letter-spacing:-.03em;margin:0 0 4px}
+.sub{color:var(--muted);margin:0 0 24px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:22px}
+.card h2{font-size:17px;margin:0 0 14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+label{display:block;font-weight:600;font-size:13px;margin-bottom:5px}
+input,select,textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px}
+textarea{resize:vertical;min-height:70px}
+input[aria-invalid="true"],select[aria-invalid="true"],textarea[aria-invalid="true"]{border-color:var(--no)}
+.err{color:var(--no);font-size:12.5px;min-height:18px;margin-top:3px}
+.span2{grid-column:1/-1}
+.btn{font:inherit;font-weight:700;border:0;border-radius:10px;padding:10px 18px;cursor:pointer;background:var(--brand);color:var(--brand-ink)}
+.btn:hover{filter:brightness(1.1)}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn.ok{background:var(--ok-bg);color:var(--ok)}
+.btn.no{background:var(--no-bg);color:var(--no)}
+.btn.sm{padding:6px 12px;font-size:13px}
+.wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:640px}
+th{text-align:left;font-size:12.5px;color:var(--muted);font-weight:700;padding:10px 12px;border-bottom:2px solid var(--line)}
+td{padding:13px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+.who{display:flex;gap:10px;align-items:center}
+.av{width:34px;height:34px;border-radius:50%;background:var(--brand);color:var(--brand-ink);display:grid;place-items:center;font-weight:800;font-size:13px;flex:none}
+.sm-t{color:var(--muted);font-size:13px}
+.badge{display:inline-block;padding:3px 11px;border-radius:99px;font-size:12.5px;font-weight:700}
+.badge.Pending{background:var(--pend-bg);color:var(--pend)}
+.badge.Approved{background:var(--ok-bg);color:var(--ok)}
+.badge.Rejected{background:var(--no-bg);color:var(--no)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.chip{font:inherit;font-weight:600;font-size:13px;border:1.5px solid var(--line);background:transparent;color:var(--ink);border-radius:99px;padding:5px 14px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.empty{text-align:center;color:var(--muted);padding:30px 10px}
+.acts{display:flex;gap:6px;flex-wrap:wrap}
+.reject-box{margin-top:10px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px;min-width:240px}
+.reason{font-size:13px;color:var(--no);margin-top:6px}
+.toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));right:20px;background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:12px;font-weight:600;opacity:0;transform:translateY(10px);transition:.25s;pointer-events:none;z-index:20}
+.toast.on{opacity:1;transform:none}
+@media (max-width:760px){
+ #app.shell{grid-template-columns:1fr}
+ aside{position:static;height:auto;flex-direction:row;flex-wrap:wrap;padding:14px}
+ .logo{width:100%;margin:0 0 6px}.note{display:none}
+ nav{display:flex;gap:6px;flex-wrap:wrap;width:100%}nav button{width:auto}
+}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}}
+
+.loginwrap{min-height:100vh;display:grid;place-items:center;padding:20px}
+.login{background:var(--surface);border:1px solid var(--line);border-radius:20px;width:100%;max-width:420px;padding:32px}
+.login .logo{color:var(--ink);margin:0 0 6px;font-size:26px}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--bg);border-radius:12px;padding:4px;margin:18px 0 16px}
+.seg button{font:inherit;font-weight:700;border:0;background:transparent;color:var(--muted);padding:9px;border-radius:9px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.login .btn{width:100%;margin-top:6px}
+.hint{font-size:12.5px;color:var(--muted);margin-top:14px;background:var(--bg);border-radius:10px;padding:10px 12px}
+.hint button{all:unset;cursor:pointer;color:var(--brand);font-weight:700;text-decoration:underline}
+.me{margin-top:auto;border-top:1px solid rgba(255,255,255,.15);padding-top:14px;display:grid;gap:10px}
+.me strong{color:#fff;display:block}.me small{opacity:.75}
+.me .btn{background:rgba(255,255,255,.12);color:#fff}
+.role{display:inline-block;font-size:11.5px;font-weight:700;background:var(--brand);color:var(--brand-ink);padding:2px 9px;border-radius:99px;margin-bottom:6px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:22px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.stat b{font-size:26px;display:block;letter-spacing:-.02em}.stat span{color:var(--muted);font-size:13px}
+.note2{font-size:12.5px;color:var(--muted);margin-top:10px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+var DEPTS=["Engineering","Human Resources","Finance","Marketing","Operations","Sales"];
+var TYPES=["Annual","Casual","Medical"];
+var ADMIN_EMAIL="admin@company.com";
+
+var API_URL = "http://localhost:5155/api";
+
+async function loadEmployees() {
+    const response = await fetch(API_URL + "/employees");
+    if (!response.ok) throw new Error("Could not load employees.");
+
+    const data = await response.json();
+
+    employees = data.map(function (e) {
+        return {
+            id: e.id,
+            name: e.name,
+            email: e.email,
+            dept: e.department
+        };
+    });
+
+    nextEmp = Math.max(0, ...employees.map(e => e.id)) + 1;
+}
+
+async function loadLeaves() {
+    const response = await fetch(API_URL + "/leaves");
+    if (!response.ok) throw new Error("Could not load leave requests.");
+
+    const data = await response.json();
+
+    leaves = data.map(function (l) {
+        return {
+            id: l.id,
+            emp: l.employeeId,
+            type: l.leaveType,
+            start: String(l.startDate).slice(0, 10),
+            end: String(l.endDate).slice(0, 10),
+            reason: l.reason,
+            status: l.status,
+            why: l.rejectionReason || ""
+        };
+    });
+
+    nextLeave = Math.max(0, ...leaves.map(l => l.id)) + 1;
+}
+
+var employees=[
+ {id:1,name:"Nimali Perera",email:"nimali@company.com",dept:"Engineering"},
+ {id:2,name:"Kasun Fernando",email:"kasun@company.com",dept:"Finance"},
+ {id:3,name:"Ayesha Rahman",email:"ayesha@company.com",dept:"Marketing"}];
+var leaves=[
+ {id:1,emp:1,type:"Annual",start:"2026-11-10",end:"2026-11-14",reason:"Family trip to Kandy.",status:"Pending",why:""},
+ {id:2,emp:2,type:"Medical",start:"2026-11-02",end:"2026-11-03",reason:"Dental surgery recovery.",status:"Approved",why:""},
+ {id:3,emp:3,type:"Casual",start:"2026-11-20",end:"2026-11-20",reason:"Personal errand.",status:"Rejected",why:"Campaign launch that day; please pick another date."}];
+var nextEmp=4,nextLeave=4,session=null,view="",filter="All",rejecting=null,loginRole="employee";
+
+function $(i){return document.getElementById(i)}
+function esc(s){var d=document.createElement("div");d.textContent=s;return d.innerHTML}
+function ini(n){return n.split(/\s+/).map(function(w){return w[0]}).slice(0,2).join("").toUpperCase()}
+function fd(s){var p=s.split("-");return new Date(+p[0],p[1]-1,+p[2]).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"})}
+function days(a,b){return Math.round((new Date(b)-new Date(a))/864e5)+1}
+function emp(id){return employees.find(function(e){return e.id===id})}
+function isAdmin(){return session&&session.role==="admin"}
+function toast(m){var t=$("toast");t.textContent=m;t.classList.add("on");setTimeout(function(){t.classList.remove("on")},2200)}
+function fld(id,label,input){return '<div><label for="'+id+'">'+label+'</label>'+input+'<div class="err" id="e-'+id+'" aria-live="polite"></div></div>'}
+function setErr(id,msg){var i=$(id),e=$("e-"+id);e.textContent=msg||"";if(msg)i.setAttribute("aria-invalid","true");else i.removeAttribute("aria-invalid")}
+function count(st,list){return list.filter(function(l){return l.status===st}).length}
+
+function leaveRows(mode){
+ var admin=mode==="admin";
+ var base=admin?leaves:leaves.filter(function(l){return l.emp===session.empId});
+ var list=base.filter(function(l){return !admin||filter==="All"||l.status===filter});
+ if(!list.length)return '<div class="empty">'+(admin?'No requests match this filter.':'You have no leave requests yet. Submit one using the form above.')+'</div>';
+ var h='<div class="wrap"><table><thead><tr>'+(admin?'<th>Employee</th>':'')+'<th>Type</th><th>Dates</th><th>Reason</th><th>Status</th>'+(admin?'<th>Action</th>':'')+'</tr></thead><tbody>';
+ list.slice().reverse().forEach(function(l){
+  var e=emp(l.emp),n=days(l.start,l.end);
+  h+='<tr>'+(admin?'<td><div class="who"><div class="av">'+esc(ini(e.name))+'</div><div><strong>'+esc(e.name)+'</strong><div class="sm-t">'+esc(e.dept)+'</div></div></div></td>':'')+
+  '<td>'+l.type+'</td><td>'+fd(l.start)+(l.end!==l.start?' – '+fd(l.end):'')+'<div class="sm-t">'+n+' day'+(n>1?'s':'')+'</div></td>'+
+  '<td>'+esc(l.reason)+(l.status==="Rejected"?'<div class="reason">Rejected: '+esc(l.why)+'</div>':'')+'</td>'+
+  '<td><span class="badge '+l.status+'">'+l.status+'</span></td>';
+  if(admin){
+   h+='<td>';
+   if(l.status==="Pending"){
+    if(rejecting===l.id)h+='<div class="reject-box"><label for="rr">Reason for rejection</label><textarea id="rr" placeholder="Explain why this request cannot be approved"></textarea><div class="err" id="e-rr"></div><div class="acts"><button class="btn no sm" data-confirm="'+l.id+'">Reject request</button><button class="btn ghost sm" data-cancel>Cancel</button></div></div>';
+    else h+='<div class="acts"><button class="btn ok sm" data-approve="'+l.id+'">Approve</button><button class="btn no sm" data-reject="'+l.id+'">Reject</button></div>';
+   }else h+='<span class="sm-t">Decided</span>';
+   h+='</td>';
+  }
+  h+='</tr>';
+ });
+ return h+'</tbody></table></div>';
+}
+
+function loginView(){
+ var emp1=loginRole==="admin"?ADMIN_EMAIL:"";
+ $("app").className="";
+ $("app").innerHTML='<div class="loginwrap"><form class="login" id="loginForm" novalidate>'+
+ '<div class="logo"><span>L</span>Leave Desk</div><div class="sm-t">Sign in to manage or request leave.</div>'+
+ '<div class="seg" role="group" aria-label="Sign in as"><button type="button" data-role="employee" aria-pressed="'+(loginRole==="employee")+'">Employee</button><button type="button" data-role="admin" aria-pressed="'+(loginRole==="admin")+'">Administrator</button></div>'+
+ fld("lemail","Email",'<input id="lemail" type="email" autocomplete="off" value="'+emp1+'" placeholder="name@company.com">')+
+ fld("lpass","Password",'<input id="lpass" type="password" placeholder="Enter your password">')+
+ '<button class="btn" type="submit">Sign in as '+(loginRole==="admin"?'administrator':'employee')+'</button>'+
+ '<div class="hint">Demo only: any password works, so this is not real security. '+(loginRole==="admin"?'Admin email is '+ADMIN_EMAIL+'.':'Try <button type="button" data-fill="'+employees[0].email+'">'+employees[0].email+'</button>.')+'</div></form></div>';
+}
+
+function render(){
+ if(!session){loginView();return}
+ var a=isAdmin();
+ if(!view)view=a?"requests":"mine";
+ var nav=a?[["requests","All requests",leaves.length],["employees","Employees",employees.length]]:[["mine","My leave",leaves.filter(function(l){return l.emp===session.empId}).length]];
+ var who=a?{n:"Administrator",s:ADMIN_EMAIL}:emp(session.empId);
+ var side='<aside><div class="logo"><span>L</span>Leave Desk</div><nav aria-label="Sections">'+
+ nav.map(function(n){return '<button data-view="'+n[0]+'" aria-current="'+(view===n[0])+'">'+n[1]+' <span class="count">'+n[2]+'</span></button>'}).join("")+'</nav>'+
+ '<div class="me"><div><span class="role">'+(a?'Administrator':'Employee')+'</span><strong>'+esc(a?who.n:who.name)+'</strong><small>'+esc(a?who.s:who.email)+'</small></div><button class="btn sm" data-logout>Sign out</button></div></aside>';
+ var h="";
+ if(view==="mine"){
+  var mine=leaves.filter(function(l){return l.emp===session.empId});
+  h='<h1>My leave</h1><p class="sub">Request time off and follow each decision from your administrator.</p>'+
+  '<div class="stats"><div class="stat"><b>'+count("Pending",mine)+'</b><span>Pending</span></div><div class="stat"><b>'+count("Approved",mine)+'</b><span>Approved</span></div><div class="stat"><b>'+count("Rejected",mine)+'</b><span>Rejected</span></div></div>'+
+  '<form class="card" id="leaveForm" novalidate><h2>New leave request</h2><div class="grid">'+
+  fld("type","Leave type",'<select id="type"><option value="">Choose type</option>'+TYPES.map(function(t){return '<option>'+t+'</option>'}).join("")+'</select>')+
+  fld("start","Start date",'<input id="start" type="date">')+fld("end","End date",'<input id="end" type="date">')+
+  '<div class="span2">'+fld("reason","Reason",'<textarea id="reason" placeholder="Briefly describe why you need leave"></textarea>')+'</div></div>'+
+  '<button class="btn" type="submit">Submit request</button><div class="note2">Requested as '+esc(emp(session.empId).name)+'. New requests start as Pending.</div></form>'+
+  '<div class="card"><h2>My requests</h2>'+leaveRows("mine")+'</div>';
+ }else if(view==="requests"&&a){
+  var c={All:leaves.length};["Pending","Approved","Rejected"].forEach(function(s){c[s]=count(s,leaves)});
+  h='<h1>All requests</h1><p class="sub">Review every employee’s request. Only administrators can approve or reject.</p>'+
+  '<div class="card"><div class="chips" role="group" aria-label="Filter by status">'+["All","Pending","Approved","Rejected"].map(function(s){return '<button class="chip" data-filter="'+s+'" aria-pressed="'+(filter===s)+'">'+s+' ('+c[s]+')</button>'}).join("")+'</div>'+leaveRows("admin")+'</div>';
+ }else if(view==="employees"&&a){
+  h='<h1>Employees</h1><p class="sub">Add people to the team so they can sign in and request leave.</p>'+
+  '<form class="card" id="empForm" novalidate><h2>Add employee</h2><div class="grid">'+
+  fld("name","Full name",'<input id="name" autocomplete="off" placeholder="e.g. Tharindu Silva">')+
+  fld("email","Email",'<input id="email" type="email" autocomplete="off" placeholder="name@company.com">')+
+  fld("dept","Department",'<select id="dept"><option value="">Choose department</option>'+DEPTS.map(function(d){return '<option>'+d+'</option>'}).join("")+'</select>')+
+  '</div><button class="btn" type="submit">Add employee</button></form>'+
+  '<div class="card"><h2>All employees</h2><div class="wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Department</th></tr></thead><tbody>'+
+  employees.map(function(e){return '<tr><td><div class="who"><div class="av">'+esc(ini(e.name))+'</div><strong>'+esc(e.name)+'</strong></div></td><td>'+esc(e.email)+'</td><td>'+esc(e.dept)+'</td></tr>'}).join("")+'</tbody></table></div></div>';
+ }
+ $("app").className="shell";
+ $("app").innerHTML=side+'<main>'+h+'</main>';
+ if(rejecting&&$("rr"))$("rr").focus();
+}
+
+document.addEventListener("click",function(ev){
+ var t=ev.target.closest("button");if(!t)return;
+ var d=t.dataset;
+ if(d.role){loginRole=d.role;render()}
+ else if(d.fill){$("lemail").value=d.fill;$("lpass").focus()}
+ else if(d.logout!==undefined){session=null;view="";rejecting=null;filter="All";render()}
+ else if(d.view){view=d.view;rejecting=null;render()}
+ else if(d.filter){filter=d.filter;rejecting=null;render()}
+ 
+else if(d.approve&&isAdmin()){
+  var approveButton=d.approve;
+  fetch(API_URL + "/leaves/" + approveButton + "/approve", {
+    method:"PATCH"
+  })
+  .then(async function(response){
+    var data=await response.json().catch(function(){return {};});
+    if(!response.ok)throw new Error(data.message || "Approval failed.");
+    await loadLeaves();
+    toast("Request approved");
+    render();
+  })
+  .catch(function(error){toast(error.message);});
+}
+
+ else if(d.reject&&isAdmin()){rejecting=+d.reject;render()}
+ else if(d.cancel!==undefined){rejecting=null;render()}
+ else if(d.confirm&&isAdmin()){
+  var v=$("rr").value.trim();
+  if(!v){$("e-rr").textContent="Enter a reason before rejecting.";$("rr").setAttribute("aria-invalid","true");return}
+  var l=leaves.find(function(x){return x.id==d.confirm});
+  if(l.status!=="Pending")return;
+  
+  fetch(API_URL + "/leaves/" + l.id + "/reject", {
+    method:"PATCH",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({reason:v})
+  })
+  .then(async function(response){
+    var data=await response.json().catch(function(){return {};});
+    if(!response.ok)throw new Error(data.message || "Rejection failed.");
+    await loadLeaves();
+    rejecting=null;
+    toast("Request rejected");
+    render();
+  })
+  .catch(function(error){toast(error.message);});
+  return;
+
+ }
+});
+
+document.addEventListener("submit",function(ev){
+ ev.preventDefault();var id=ev.target.id,ok=true;
+ if(id==="loginForm"){
+  var e=$("lemail").value.trim().toLowerCase(),p=$("lpass").value;
+  var re=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  var em=!e?"Enter your email.":!re.test(e)?"Enter a valid email like name@company.com.":"";
+  var found=employees.find(function(x){return x.email.toLowerCase()===e});
+  if(!em&&loginRole==="admin"&&e!==ADMIN_EMAIL)em="This email is not an administrator account.";
+  if(!em&&loginRole==="employee"&&!found)em="No employee found with this email. Ask an administrator to add you.";
+  setErr("lemail",em);setErr("lpass",p?"":"Enter your password.");
+  if(em||!p)return;
+  session=loginRole==="admin"?{role:"admin"}:{role:"employee",empId:found.id};view="";render();
+ }else if(id==="empForm"&&isAdmin()){
+  var n=$("name").value.trim(),m=$("email").value.trim(),dp=$("dept").value;
+  var re2=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  setErr("name",n?"":"Enter the employee’s full name.");if(!n)ok=false;
+  var me=!m?"Enter an email address.":!re2.test(m)?"Enter a valid email like name@company.com.":employees.some(function(x){return x.email.toLowerCase()===m.toLowerCase()})?"This email is already in use.":"";
+  setErr("email",me);if(me)ok=false;
+  setErr("dept",dp?"":"Choose a department.");if(!dp)ok=false;
+  if(!ok)return;
+  employees.push({id:nextEmp++,name:n,email:m,dept:dp});toast("Employee added");render();
+ 
+}else if(id==="leaveForm"&&session&&session.role==="employee"){
+  var ty=$("type").value;
+  var s=$("start").value;
+  var en=$("end").value;
+  var r=$("reason").value.trim();
+
+  setErr("type",ty?"":"Choose a leave type.");
+  if(!ty)ok=false;
+
+  setErr("start",s?"":"Pick a start date.");
+  if(!s)ok=false;
+
+  var ee=!en?"Pick an end date.":(s&&en<s)?"End date can't be before the start date.":"";
+  setErr("end",ee);
+  if(ee)ok=false;
+
+  setErr("reason",r?"":"Enter a reason.");
+  if(!r)ok=false;
+
+  if(!ok)return;
+
+  var submitButton=ev.target.querySelector('button[type="submit"]');
+  submitButton.disabled=true;
+
+  fetch(API_URL + "/leaves", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      employeeId:session.empId,
+      leaveType:ty,
+      startDate:s,
+      endDate:en,
+      reason:r
+    })
+  })
+  .then(async function(response){
+    var data=await response.json().catch(function(){return {};});
+    if(!response.ok){
+      throw new Error(data.message || "Failed to submit leave request.");
+    }
+
+    await loadLeaves();
+    toast("Request submitted successfully");
+    render();
+  })
+  .catch(function(error){
+    toast(error.message);
+    submitButton.disabled=false;
+  });
+}
+
+  
+});
+document.addEventListener("change",function(ev){if(ev.target.id==="start"&&$("end"))$("end").min=ev.target.value});
+
+Promise.all([loadEmployees(), loadLeaves()])
+  .then(function(){
+    render();
+  })
+  .catch(function(error){
+    console.error(error);
+    render();
+    toast("Could not load database data. Check the API.");
+  });
+;
+</script>
+</body>
+</html>
